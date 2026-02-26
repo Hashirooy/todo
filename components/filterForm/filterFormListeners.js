@@ -1,6 +1,6 @@
-import { store } from "../store/store.js";
+import { applyFilter, resetFilter } from "./filterFormHandlers.js";
 
-export function filterFormMethods() {
+export function attachFilterFormListeners() {
   const form = document.querySelector(".container-filter__form");
   if (!form) return;
 
@@ -8,13 +8,9 @@ export function filterFormMethods() {
   const statusSelect = form.querySelector("select[name='status']");
   const prioritySelect = form.querySelector("select[name='priority']");
   const resetBtn = form.querySelector(".form-field__button_reset");
-  resetBtn.addEventListener("click", () => {
-    store.setFilter("all", "all");
-  });
 
+  resetBtn.addEventListener("click", resetFilter);
   applyBtn.addEventListener("click", () => {
-    const status = statusSelect.value;
-    const priority = prioritySelect.value;
-    store.setFilter(status, priority);
+    applyFilter(statusSelect.value, prioritySelect.value);
   });
 }
