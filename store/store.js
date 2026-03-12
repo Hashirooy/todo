@@ -1,16 +1,21 @@
+import {
+  safeParseArray,
+  normalizeTask,
+} from "../shared/helper/fieldValidation.js";
+
 function initState() {
-  const saved = JSON.parse(localStorage.getItem("todos"));
-  if (saved && Array.isArray(saved)) return saved;
-  return [];
+  const saved = safeParseArray("todos");
+  const normalized = saved
+    .map((task) => normalizeTask(task))
+    .filter((task) => task !== null);
+  return normalized;
 }
 
 function initLogChange() {
-  const saved = JSON.parse(localStorage.getItem("todosLogChange"));
-  if (saved && Array.isArray(saved)) return saved;
-  return [];
+  const saved = safeParseArray("todosLogChange");
+  if (!saved.length) return [];
+  return saved.filter((item) => item && typeof item === "object");
 }
-
-const subscribers = [];
 
 let filter = { status: "all", priority: "all" };
 
@@ -26,7 +31,8 @@ export const store = {
   addTask(task) {
     const tasks = this.get();
 
-    const newTask = { ...task };
+    const newTask = normalizeTask(task);
+    if (!newTask) return;
     this.set([...tasks, newTask]);
   },
 
@@ -37,20 +43,18 @@ export const store = {
 
   setFilter(status, priority) {
     filter = { status: status || "all", priority: priority || "all" };
-    subscribers.forEach((component) => component());
+  },
+  resetFilter() {
+    filter = { status: "all", priority: "all" };
   },
   set(data) {
     this.state = data;
     localStorage.setItem("todos", JSON.stringify(data));
-    subscribers.forEach((component) => component());
   },
   setLog(data) {
     this.log = data;
     localStorage.setItem("todosLogChange", JSON.stringify(data));
-    subscribers.forEach((component) => component());
-  },
-  subscribe(component) {
-    subscribers.push(component);
+    ё;
   },
   delete(id) {
     const tasks = this.get();
@@ -69,7 +73,8 @@ export const store = {
     const task = tasks.find((t) => String(t.id) === String(id));
     if (!task) return;
     const oldTask = { ...task };
-    const updatedTask = { ...task, ...data };
+    const merged = { ...task, ...data };
+    const updatedTask = normalizeTask(merged) ?? oldTask;
     const newTasks = tasks.map((t) =>
       String(t.id) === String(id) ? updatedTask : t,
     );

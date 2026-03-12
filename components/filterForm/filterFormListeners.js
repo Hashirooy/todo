@@ -9,7 +9,11 @@ export function attachFilterFormListeners() {
   const prioritySelect = form.querySelector("select[name='priority']");
   const resetBtn = form.querySelector(".form-field__button_reset");
 
-  resetBtn.addEventListener("click", resetFilter);
+  resetBtn.addEventListener("click", () => {
+    statusSelect.value = "all";
+    prioritySelect.value = "all";
+    resetFilter();
+  });
   applyBtn.addEventListener("click", () => {
     applyFilter(statusSelect.value, prioritySelect.value);
   });

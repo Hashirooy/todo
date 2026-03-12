@@ -7,44 +7,32 @@ import { createFilterForm } from "./components/filterForm/filterForm.js";
 import { attachFilterFormListeners } from "./components/filterForm/filterFormListeners.js";
 import "./components/modalWindow/modalWindowListener.js";
 import { createLogTaskList } from "./components/logTaskList/logTaskList.js";
-
-function setContentFromHTML(container, html) {
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  const nodes = Array.from(doc.body.childNodes);
-  container.replaceChildren();
-  container.append(...nodes);
-}
+import { renderHTML } from "./shared/helper/renderHTML.js";
 
 function renderTodoList() {
   const tasks = store.getFilteredTasks();
   const html = createTodoList(tasks);
-  const container = document.querySelector(".container-tasks");
-  setContentFromHTML(container, html);
+  renderHTML(".container-tasks", html);
 }
 
 function renderAddTaskForm() {
   const html = createAddTaskForm();
-  const container = document.querySelector(".container-form");
-  setContentFromHTML(container, html);
+  renderHTML(".container-form", html);
   attachAddTaskFormListeners();
 }
 
 function renderLogTaskList() {
   const tasks = store.getLog();
   const html = createLogTaskList(tasks);
-  const container = document.querySelector(".container-log-tasks");
-  setContentFromHTML(container, html);
+  renderHTML(".container-log-tasks", html);
 }
 
 function renderFilterForm() {
   const html = createFilterForm();
-  const container = document.querySelector(".container-filter");
-  setContentFromHTML(container, html);
+  renderHTML(".container-filter", html);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  store.subscribe(renderTodoList);
-  store.subscribe(renderLogTaskList);
   renderAddTaskForm();
   renderTodoList();
   renderFilterForm();

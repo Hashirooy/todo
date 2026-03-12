@@ -1,8 +1,18 @@
 import { store } from "../../store/store.js";
 import { createModalWindow } from "./modalWindow.js";
+import { validateField } from "../../shared/helper/fieldValidation.js";
+import { renderHTML } from "../../shared/helper/renderHTML.js";
+import { createTodoList } from "../todoList/todoList.js";
+import { createLogTaskList } from "../logTaskList/logTaskList.js";
 
 export function deleteTask(id) {
   store.delete(id);
+  const tasks = store.getFilteredTasks();
+  const html = createTodoList(tasks);
+  renderHTML(".container-tasks", html);
+  const log = store.getLog();
+  const logHtml = createLogTaskList(log);
+  renderHTML(".container-log-tasks", logHtml);
 }
 
 export function editTask(id) {
@@ -14,42 +24,62 @@ export function editTask(id) {
 export function saveTaskChange(id, data) {
   store.changeTask(id, data);
   closeModalWindow();
+  const tasks = store.getFilteredTasks();
+  const html = createTodoList(tasks);
+  renderHTML(".container-tasks", html);
+  const log = store.getLog();
+  const logHtml = createLogTaskList(log);
+  renderHTML(".container-log-tasks", logHtml);
 }
 
-/** Собирает данные из формы редактирования задачи. */
 export function getEditFormData(form) {
+  if (
+    !form ||
+    !form.querySelector("[name='title']") ||
+    !form.querySelector("[name='description']") ||
+    !form.querySelector("[name='date']") ||
+    !form.querySelector("[name='status']") ||
+    !form.querySelector("[name='priority']")
+  )
+    return null;
   return {
-    title: form.querySelector("[name='title']").value.trim(),
-    description: form.querySelector("[name='description']").value.trim(),
-    date: form.querySelector("[name='date']").value,
-    status: form.querySelector("[name='status']").value,
-    priority: form.querySelector("[name='priority']").value,
+    title: validateField(form.querySelector("[name='title']").value.trim()),
+    description: validateField(
+      form.querySelector("[name='description']").value.trim(),
+    ),
+    date: validateField(form.querySelector("[name='date']").value),
+    status: validateField(form.querySelector("[name='status']").value),
+    priority: validateField(form.querySelector("[name='priority']").value),
   };
 }
 
 export function createTaskEditFormContent(task) {
   const id = task.id;
-  const title = task.title;
-  const description = task.description ?? "";
-  const date = task.date;
-  const status = task.status;
-  const priority = task.priority;
+  const title = validateField(task.title ?? "").replace(/"/g, "&quot;");
+  const description = validateField(task.description ?? "").replace(
+    /"/g,
+    "&quot;",
+  );
+  const date = validateField(task.date ?? "");
+  const status = task.status ?? "";
+  const priority = task.priority ?? "";
   const sel = (field, value) => (field === value ? ' selected="selected"' : "");
+  const today = new Date().toISOString().split("T")[0];
   return `
     <div class="modal-window__task modal-window__edit" data-id="${id}">
       <h2 class="modal-window__title">Редактировать задачу</h2>
       <form class="modal-window__edit-form">
         <div class="form-field">
           <label>Название</label>
-          <input type="text" name="title" value="${title.replace(/"/g, "&quot;")}" required placeholder="Название">
+          <input type="text" name="title" value="${title}" required placeholder="Название">
         </div>
         <div class="form-field">
           <label>Описание</label>
-          <input type="text" name="description" value="${description.replace(/"/g, "&quot;")}" placeholder="Описание">
+          <input type="text" name="description" value="${description}" placeholder="Описание">
         </div>
         <div class="form-field">
           <label>Срок</label>
-          <input type="date" name="date" value="${date}">
+          <input type="date" name="date" value="${date}" min="${today}">
         </div>
         <div class="form-field">
           <label>Статус</label>
@@ -83,6 +113,7 @@ export function closeModalWindow() {
   if (!modalWindow) return;
   modalWindow.classList.remove("modal-window_active");
   document.body.classList.remove("modal-window_active");
+  renderHTML(".modal-container", "");
 }
 
 export function openModalWindow(content) {
@@ -98,11 +129,11 @@ export function openModalWindow(content) {
 
 export function createTaskModalContent(task) {
   const id = task.id;
-  const title = task.title ?? "";
-  const description = task.description ?? "";
-  const date = task.date ?? "";
-  const status = task.status ?? "";
-  const priority = task.priority ?? "";
+  const title = validateField(task.title ?? "");
+  const description = validateField(task.description ?? "");
+  const date = validateField(task.date ?? "");
+  const status = validateField(task.status ?? "");
+  const priority = validateField(task.priority ?? "");
   return `
     <div class="modal-window__task" data-id="${id}">
       <h2 class="modal-window__title">${title}</h2>
