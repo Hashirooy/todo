@@ -15,12 +15,6 @@ export function createAddTaskForm() {
       <input id="field-date" type="date" name="date">
     </div>
     <div class="form-field">
-      <label for="field-status">Status</label>
-      <select id="field-status" name="time" required>
-        <option value="1">new</option>
-        <option value="2">in progress</option>
-        <option value="3">done</option>
-      </select>
     </div>
     <div class="form-field">
       <label for="field-priority">Priority</label>

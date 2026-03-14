@@ -54,7 +54,6 @@ export const store = {
   setLog(data) {
     this.log = data;
     localStorage.setItem("todosLogChange", JSON.stringify(data));
-    ё;
   },
   delete(id) {
     const tasks = this.get();

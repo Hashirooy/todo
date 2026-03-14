@@ -6,16 +6,16 @@ import { renderHTML } from "../../shared/helper/renderHTML.js";
 
 export function addTask(formData) {
   if (!formData) return;
-  const { title, description, date, status, priority } = formData;
-  if (!title || !description || !date || !status || !priority) return;
+  const { title, description, date, priority } = formData;
+  if (!title || !description || !date || !priority) return;
   const newId = crypto.randomUUID();
   store.addTask({
     id: newId,
     title,
     description,
     date,
-    status,
-    priority,
+    status: "new",
+    priority: priority || "low",
     done: false,
   });
   const tasks = store.getFilteredTasks();
@@ -36,13 +36,9 @@ export function getFormData() {
     form.querySelector("input[name='description']").value.trim(),
   );
   const date = validateField(form.querySelector("input[name='date']").value);
-  const statusSelect = form.querySelector("select[name='time']");
-  const status = validateField(
-    statusSelect.options[statusSelect.selectedIndex].text,
-  );
   const prioritySelect = form.querySelector("select[name='priority']");
   const priority = validateField(
     prioritySelect.options[prioritySelect.selectedIndex].text,
   );
-  return { title, description, date, status, priority };
+  return { title, description, date, priority };
 }

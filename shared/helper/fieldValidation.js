@@ -21,7 +21,7 @@ export function safeParseArray(key) {
 
 export function normalizeTask(task) {
   if (!task || typeof task !== "object") return null;
-  const id = task.id ?? crypto.randomUUID?.() ?? String(Date.now());
+  const id = task.id ?? crypto.randomUUID?.();
   const title = validateField(String(task.title ?? "").trim());
   const description = validateField(String(task.description ?? "").trim());
   const date = validateField(String(task.date ?? ""));
