@@ -1,39 +1,42 @@
 import { store } from "./store/store.js";
-import { createTodoList } from "./components/todoList.js";
-import { createAddTaskForm } from "./components/addTaskForm.js";
-import { addTaskFormMethods } from "./components/addTaskFormMethods.js";
-import { createFilterForm } from "./components/filterForm.js";
-import { filterFormMethods } from "./components/filterFormMethods.js";
+import { createTodoList } from "./components/todoList/todoList.js";
+import { attachTodoListListeners } from "./components/todoList/todoListListeners.js";
+import { createAddTaskForm } from "./components/addTaskForm/addTaskForm.js";
+import { attachAddTaskFormListeners } from "./components/addTaskForm/addTaskFormListeners.js";
+import { createFilterForm } from "./components/filterForm/filterForm.js";
+import { attachFilterFormListeners } from "./components/filterForm/filterFormListeners.js";
+import "./components/modalWindow/modalWindowListener.js";
+import { createLogTaskList } from "./components/logTaskList/logTaskList.js";
+import { renderHTML } from "./shared/helper/renderHTML.js";
 
 function renderTodoList() {
   const tasks = store.getFilteredTasks();
   const html = createTodoList(tasks);
-  document.querySelector(".container-tasks").innerHTML = html;
+  renderHTML(".container-tasks", html);
 }
 
 function renderAddTaskForm() {
   const html = createAddTaskForm();
-  document.querySelector(".container-form").innerHTML = html;
-  addTaskFormMethods();
+  renderHTML(".container-form", html);
+  attachAddTaskFormListeners();
+}
+
+function renderLogTaskList() {
+  const tasks = store.getLog();
+  const html = createLogTaskList(tasks);
+  renderHTML(".container-log-tasks", html);
 }
 
 function renderFilterForm() {
   const html = createFilterForm();
-  document.querySelector(".container-filter").innerHTML = html;
+  renderHTML(".container-filter", html);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  store.subscribe(renderTodoList);
   renderAddTaskForm();
-  addTaskFormMethods();
   renderTodoList();
   renderFilterForm();
-  filterFormMethods();
-  const tasksContainer = document.querySelector(".container-tasks");
-  tasksContainer.addEventListener("click", (e) => {
-    if (!e.target.matches(".task-item__delete")) return;
-    const item = e.target.closest(".task-item");
-    if (!item) return;
-    store.delete(item.dataset.id);
-  });
+  renderLogTaskList();
+  attachFilterFormListeners();
+  attachTodoListListeners();
 });
